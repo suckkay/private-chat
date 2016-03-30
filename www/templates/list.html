@@ -1,0 +1,14 @@
+<ion-view view-title="List User" ng-controller="ListController as listCtrl" class="light-grey">
+ 	<ion-nav-bar class="bar-dark">
+      
+ 	</ion-nav-bar>
+ 	<ion-content has-bouncing="true" class="content">
+		<ul class="list">
+			<!-- <li>{{listCtrl.st}}</li> -->
+			<a class="item" ng-repeat="item in listCtrl.nikitems" ng-click="listCtrl.privatechat(item)"> {{item}} </a>
+		   <!--  <li class="item" ng-repeat="item in listCtrl.nikitems">
+		      <a class="item"> {{item}} </a>
+		    </li> -->
+		</ul>
+	</ion-content>
+ </ion-view>
