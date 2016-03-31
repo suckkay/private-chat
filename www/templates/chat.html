@@ -1,4 +1,4 @@
-<ion-view view-title="Chat Room" ng-controller="ChatController as chatCtrl" class="light-grey" cache-view="false">
+<ion-view view-title="Chat Room" ng-controller="ChatController as chatCtrl" class="light-grey" cache-view="false" ng-init="reload()">
  	<ion-nav-bar class="bar-dark">
       <ion-nav-buttons side="right">
         <button class="button button-clear icon ion-android-more-vertical right8" ng-click="chatCtrl.openPopover($event)">
