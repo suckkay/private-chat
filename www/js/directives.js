@@ -4,7 +4,7 @@ angular.module('starter.directives', [])
         return function(scope, element, attrs) {
             element.bind("keydown keypress", function(event) {
                 if(event.which === 13) {
-                    alert('keypressed');
+                   // alert('keypressed');
                         scope.$apply(function(){
                                 scope.$eval(attrs.ngEnter);
                         });

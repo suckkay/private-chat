@@ -27,7 +27,7 @@ angular.module('starter.services', [])
 })
 .factory('socket',function(socketFactory){
   return socketFactory({
-    prefix: 'foo~',
+    // prefix: 'foo~',
     ioSocket: io.connect('http://103.31.226.156:40062/')
   });
   // var myIoSocket = io.connect();

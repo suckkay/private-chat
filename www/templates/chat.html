@@ -6,6 +6,10 @@
       </ion-nav-buttons>
  	</ion-nav-bar>
  	<ion-content has-bouncing="true" class="content">
+ 		<ion-refresher
+		    pulling-text="Pull to refresh..."
+		    on-refresh="doRefresh()">
+	  	</ion-refresher>
 	  <div ng-show="chatCtrl.connected">
 	 <!-- 	<div class="log pad2">"Welcome ";</div>
 	 	<div class="log">{{chatCtrl.number_message}}</div> -->

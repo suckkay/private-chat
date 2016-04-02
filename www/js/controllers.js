@@ -8,16 +8,11 @@ angular.module('starter.controllers', [])
 
 
 .controller('ChatController', function(socket, $stateParams,$sanitize,$ionicScrollDelegate,$timeout, User, config, $ionicLoading , $scope) {
-  	
-	$scope.reload = function(){
-		// window.location.reload(true)
-	}
-  	$scope.$on('$ionicView.enter', function(){
-  		
-	});
-  	
 
   	var self=this;
+
+  	var  socket = io.connect('http://103.31.226.156:40062/');
+  	
   	var typing = false;
   	var lastTypingTime;
   	var TYPING_TIMER_LENGTH = 400;
@@ -30,23 +25,48 @@ angular.module('starter.controllers', [])
 	  ];
 	// $timeout(function () {
 	//     // $ionicLoading.hide();
+	//     sendUpdateTyping();
 	//     console.log('realoaded');
-	//     window.location.reload(true);
-	//   }, 1000);
+	//     // window.location.reload(true);
+	//   }, 100);
+
+	setInterval(function(){ sendUpdateTyping();console.log('realoaded'); }, 1000);
   
-	self.messages=[]
+	self.messages=[];
+		socket.emit('adduser', $stateParams.nickname);
+	  	socket.emit('switchRoom', window.localStorage['room_id']);
+	  	socket.on('updateMessage', function (data) {
+			if(data.message&&data.username)
+		  	{
+		   		addMessageToList(data.username,true,data.message)
+		  	}
+			console.log('data from server chats readed '+data.username);
+			});
+
+			socket.on('typing', function (data) {
+			    addChatTyping(data);
+			});
+
+			socket.on('stop typing', function (data) {
+			    removeChatTyping(data.username);
+			  });
+  	
+  	
 	socket.on('connect',function(){
-		reconnection = true
+		// reconnection = true
+		connected = true;
+		self.connected = true;
   	  	console.log('io coneected');
   		socket.emit('adduser', $stateParams.nickname);
   		socket.emit('switchRoom', window.localStorage['room_id']);
 
-  		socket.on('updateMessage', function (data) {
-	  		var user;
-	  		if(data.username == $stateParams.nickname){user = 'me ';}else{ user = data.username } 
-		   		addMessageToList(user,true,data.message)
-			   		console.log('data from server chats readed '+data.username);
-		});
+  // 		socket.on('updateMessage', function (data) {
+	 //  		if(data.message&&data.username)
+		//   	{
+		//    		addMessageToList(data.username,true,data.message)
+		//   	}
+		// 	console.log('data from server chats readed '+data.username);
+		// });
 
 		socket.on('typing', function (data) {
 		    addChatTyping(data);
@@ -56,8 +76,7 @@ angular.module('starter.controllers', [])
 		    removeChatTyping(data.username);
 		  });	
 	  	});
-	// 
-	
+
   	
   	//function called when user hits the send button
   	self.sendMessage=function(){
@@ -66,13 +85,14 @@ angular.module('starter.controllers', [])
 		    message: self.message
 
 		});
-		console.log(self.message+' ini kebaca diketik oleh '+window.localStorage['user_id']+' di room '+window.localStorage['room_id']);
+		console.log(self.message+' ini kebaca diketik oleh '+window.localStorage['user_id']+' di room '+ window.localStorage['room_id']);
   		socket.emit('stop typing');
   		self.message = ""
   	}
 
   	//function called on Input Change
   	self.updateTyping=function(){
+  		console.log('user update typing');
   		sendUpdateTyping()
   	}
 
@@ -101,6 +121,7 @@ angular.module('starter.controllers', [])
   	// Updates the typing event
   	function sendUpdateTyping(){
   		if(self.connected){
+  			console.log('ini siapa ya '+self.connected);
   			if (!typing) {
 		        typing = true;
 		        socket.emit('typing');
@@ -112,6 +133,7 @@ angular.module('starter.controllers', [])
 	        var timeDiff = typingTimer - lastTypingTime;
 	        if (timeDiff >= TYPING_TIMER_LENGTH && typing) {
 	          socket.emit('stop typing');
+	          console.log('this running becouse of emiting ');
 	          typing = false;
 	        }
       	}, TYPING_TIMER_LENGTH)
@@ -119,7 +141,10 @@ angular.module('starter.controllers', [])
 
 	// Adds the visual chat typing message
 	function addChatTyping (data) {
-	    addMessageToList(data.username,true," is typing");
+		if(data.username != $stateParams.nickname){
+			addMessageToList(data.username,true," is typing");	
+		}
+	    
 	}
 
 	// Removes the visual chat typing message
@@ -146,7 +171,7 @@ angular.module('starter.controllers', [])
     		console.log("dt room id "+data.data.room_id);
     		self.roomid = data.data.room_id;
     		window.localStorage['room_id'] = data.data.room_id;
-
+    		window.localStorage['reloaded'] = "false";
 			socket.emit('switchRoom', self.roomid);
 			console.log('successfull adding room to '+self.roomid);
 	  	}).error(function(){
