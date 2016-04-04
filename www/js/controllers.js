@@ -8,11 +8,12 @@ angular.module('starter.controllers', [])
 
 
 .controller('ChatController', function(socket, $stateParams,$sanitize,$ionicScrollDelegate,$timeout, User, config, $ionicLoading , $scope) {
-
+	
   	var self=this;
 
   	var  socket = io.connect('http://103.31.226.156:40062/');
-  	
+  		socket.emit('adduser', $stateParams.nickname);
+	  	socket.emit('switchRoom', window.localStorage['room_id']);
   	var typing = false;
   	var lastTypingTime;
   	var TYPING_TIMER_LENGTH = 400;
@@ -24,24 +25,25 @@ angular.module('starter.controllers', [])
 	    '#3b88eb', '#3824aa', '#a700ff', '#d300e7'
 	  ];
 
-	// $timeout(function () {
-	//     // $ionicLoading.hide();
-	//     sendUpdateTyping();
-	//     console.log('realoaded');
-	//     // window.location.reload(true);
-	//   }, 100);
+	
+	$timeout(function () {
+		if(window.localStorage['reloaded'] == "false"){
+			window.localStorage['reloaded'] = "true";
+			window.location.reload(true);
+		}
+	 	
+	  }, 1000);
 
-	setInterval(function(){ sendUpdateTyping();console.log('realoaded'); }, 3000);
+	setInterval(function(){ sendUpdateTyping();console.log('realoaded'); }, 2000);
   
 	self.messages=[];
-		socket.emit('adduser', $stateParams.nickname);
-	  	socket.emit('switchRoom', window.localStorage['room_id']);
+		
 	  	socket.on('updateMessage', function (data) {
 			if(data.message&&data.username)
 		  	{
 		   		addMessageToList(data.username,true,data.message)
 		  	}
-			console.log('data from server chats readed '+data.username);
+			// console.log('data from server chats readed '+data.username);
 			});
 
 			socket.on('typing', function (data) {
@@ -57,9 +59,9 @@ angular.module('starter.controllers', [])
 		// reconnection = true
 		connected = true;
 		self.connected = true;
-  	  	console.log('io coneected');
-  		socket.emit('adduser', $stateParams.nickname);
-  		socket.emit('switchRoom', window.localStorage['room_id']);
+  	  	// console.log('io coneected');
+  		// socket.emit('adduser', $stateParams.nickname);
+  		// socket.emit('switchRoom', window.localStorage['room_id']);
 
   // 		socket.on('updateMessage', function (data) {
 	 //  		if(data.message&&data.username)
@@ -93,7 +95,7 @@ angular.module('starter.controllers', [])
 
   	//function called on Input Change
   	self.updateTyping=function(){
-  		console.log('user update typing');
+  		// console.log('user update typing');
   		sendUpdateTyping()
   	}
 
@@ -104,7 +106,7 @@ angular.module('starter.controllers', [])
   		var color = style_type ? getUsernameColor(username) : null
   		self.messages.push({content:$sanitize(message),style:style_type,username:username,color:color})
   		$ionicScrollDelegate.scrollBottom();
-  		console.log(username+'  -  '+message+' data should be updated')
+  		// console.log(username+'  -  '+message+' data should be updated')
   	}
 
   	//Generate color for the same user.
@@ -122,7 +124,7 @@ angular.module('starter.controllers', [])
   	// Updates the typing event
   	function sendUpdateTyping(){
   		if(self.connected){
-  			console.log('ini siapa ya '+self.connected);
+  			// console.log('ini siapa ya '+self.connected);
   			if (!typing) {
 		        typing = true;
 		        socket.emit('typing');
@@ -134,7 +136,7 @@ angular.module('starter.controllers', [])
 	        var timeDiff = typingTimer - lastTypingTime;
 	        if (timeDiff >= TYPING_TIMER_LENGTH && typing) {
 	          socket.emit('stop typing');
-	          console.log('this running becouse of emiting ');
+	          // console.log('this running becouse of emiting ');
 	          typing = false;
 	        }
       	}, TYPING_TIMER_LENGTH)
@@ -142,7 +144,7 @@ angular.module('starter.controllers', [])
 
 	// Adds the visual chat typing message
 	function addChatTyping (data) {
-		if(data.username == $stateParams.nickname){
+		if(data.username != $stateParams.nickname){
 			addMessageToList(data.username,true," is typing");	
 		}
 	    
@@ -172,9 +174,13 @@ angular.module('starter.controllers', [])
     		console.log("dt room id "+data.data.room_id);
     		self.roomid = data.data.room_id;
     		window.localStorage['room_id'] = data.data.room_id;
+    		window.localStorage['to'] = data.data.room_id;
     		window.localStorage['reloaded'] = "false";
-			socket.emit('switchRoom', self.roomid);
-			console.log('successfull adding room to '+self.roomid);
+    		console.log(window.localStorage['reloaded'])
+    		// socket.emit('switchRoom', self.roomid);
+   //  		socket.emit('adduser',uname);
+			// socket.emit('switchRoom', self.roomid);
+			console.log($stateParams.nickname + ' successfull adding room to '+self.roomid+ ' and chat to '+ to);
 	  	}).error(function(){
 	  		console.log("error")
 		})
@@ -213,9 +219,9 @@ angular.module('starter.controllers', [])
 		//sanitize the nickname
 		//var nickname=$sanitize(self.nickname)
 		
-			socket.emit('adduser',nickname);
+			// socket.emit('adduser',nickname);
 			window.localStorage['user_id'] = nickname;
-			console.log('successfull adding'+nickname);
+			// console.log('successfull adding'+nickname);
 			$state.go('list',{nickname:nickname});
 	}
 	  
