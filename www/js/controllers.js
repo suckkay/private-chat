@@ -23,6 +23,7 @@ angular.module('starter.controllers', [])
 	    '#58dc00', '#287b00', '#a8f07a', '#4ae8c4',
 	    '#3b88eb', '#3824aa', '#a700ff', '#d300e7'
 	  ];
+
 	// $timeout(function () {
 	//     // $ionicLoading.hide();
 	//     sendUpdateTyping();
@@ -30,7 +31,7 @@ angular.module('starter.controllers', [])
 	//     // window.location.reload(true);
 	//   }, 100);
 
-	setInterval(function(){ sendUpdateTyping();console.log('realoaded'); }, 1000);
+	setInterval(function(){ sendUpdateTyping();console.log('realoaded'); }, 3000);
   
 	self.messages=[];
 		socket.emit('adduser', $stateParams.nickname);
@@ -141,7 +142,7 @@ angular.module('starter.controllers', [])
 
 	// Adds the visual chat typing message
 	function addChatTyping (data) {
-		if(data.username != $stateParams.nickname){
+		if(data.username == $stateParams.nickname){
 			addMessageToList(data.username,true," is typing");	
 		}
 	    
